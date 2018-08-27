@@ -30,7 +30,7 @@ registersEnabled = False
 clocked = False
 
 def setPin(name, high):
-    global a, b, c, registerHighs, data
+    global a, b, c, registerHighs, data, clocked, registersEnabled
 
     if name == pin_a:
         a = high;
