@@ -1,71 +1,70 @@
 from graphics import *
+from enum import Enum
 import time
 
-a = False
-b = False
-c = False
+class Pin(Enum):
+    A = 0
+    B = 1
+    C = 2
 
-aLabel = Text(Point(25, 80), "OFF")
-bLabel = Text(Point(125, 80), "OFF")
-cLabel = Text(Point(225, 80), "OFF")
-dataLabel = Text(Point(325, 80), "OFF")
+    DATA  = 3
+    CLOCK = 4
+    CLEAR = 5
 
-pin_data = "DATA"
-pin_clear = "CLEAR"
-pin_clock = "CLOCK"
-
-pin_a = "A"
-pin_b = "B"
-pin_c = "C"
+state = {}
+for pin in Pin:
+    state[pin] = 0
 
 registerHighs = []; # keeps track of POSITIONS all 1's in the data registers
 
-data = False
+
 
 win = GraphWin("Sign Emulator", 900, 70) # Each light bulb is 10 x 10
-registerWin = GraphWin("Bit Registers", 900, 10)
-pinWin = GraphWin("Pins", 380, 100)
+registerWin = GraphWin("Shift Registers", 900, 10)
+pinWin = GraphWin("Pins", 580, 100)
 
-registersEnabled = False
-clocked = False
 
-def setPin(name, high):
-    global a, b, c, registerHighs, data, clocked, registersEnabled
 
-    if name == pin_a:
-        a = high;
-        updatePinLabel(aLabel, high)
-    elif name == pin_b:
-        b = high;
-        updatePinLabel(bLabel, high)
-    elif name == pin_c:
-        c = high;
-        updatePinLabel(cLabel, high)
-    elif name == pin_clock:
-        if (clocked == False and high == True and registersEnabled): # we push left after a 0, we ignore if a 1
+def setPin(pin, high):
+    global registerHighs
 
-            # check if the farthest left bit is at the end of the sign, we want to remove it if True
-            if (len(registerHighs) > 0 and registerHighs[0] == 0):
-                registerHighs.pop(0)
+    if pin == Pin.A:
+        state[Pin.A] = high;
+        # updatePinLabel(aLabel, high)
+    elif pin == Pin.B:
+        state[Pin.B] = high;
+        # updatePinLabel(bLabel, high)
+    elif pin == Pin.C:
+        state[Pin.C] = high;
+        # updatePinLabel(cLabel, high)
+    elif pin == Pin.CLOCK:
+        if (high == True):
+            if(state[Pin.CLOCK] == 0 and state[Pin.CLEAR] == 1): # we push left after a 0, we ignore if a 1
 
-            # Iterate through registers and move every bit to the left 1
-            for i in range(len(registerHighs)):
-                registerHighs[i] -= 1
+                # check if the farthest left bit is at the end of the sign, we want to remove it if True
+                if (len(registerHighs) > 0 and registerHighs[0] == 0):
+                    registerHighs.pop(0)
 
-            if (data): # if data is set to 1, we append a bit in the register
-                registerHighs.append(89)
-        clocked = high
-    elif name == pin_clear: # Ignores 'high', I'm pretty sure that's how it works
-        if (high):
-            registersEnabled = True
+                # Iterate through registers and move every bit to the left 1
+                for i in range(len(registerHighs)):
+                    registerHighs[i] -= 1
+
+                if (state[Pin.DATA]): # if data is set to 1, we append a bit in the register
+                    registerHighs.append(89)
+            state[Pin.CLOCK] = 1
         else:
-            registersEnabled = False
+            state[Pin.CLOCK] = 0
+    elif pin == Pin.CLEAR: # Ignores 'high', I'm pretty sure that's how it works
+        if (high):
+            state[Pin.CLEAR] = 1
+        else:
+            state[Pin.CLEAR] = 0
             registerHighs = []
-    elif name == pin_data:
-        data = high
-        updatePinLabel(dataLabel, high)
+    elif pin == Pin.DATA:
+        state[Pin.DATA] = high
+        # updatePinLabel(dataLabel, high)
 
-    rowSelected = a * 4 + b * 2 + c
+    rowSelected = state[Pin.A] * 4 + state[Pin.B] * 2 + state[Pin.C]
 
     clearScreen(win)
     clearScreen(registerWin)
@@ -97,6 +96,14 @@ def clearScreen(window):
     blackBackground.setFill('black')
     blackBackground.draw(window)
 
+def inside(point, rectangle):
+    """ Is point inside rectangle? """
+
+    ll = rectangle.getP1()  # assume p1 is ll (lower left)
+    ur = rectangle.getP2()  # assume p2 is ur (upper right)
+
+    return ll.getX() < point.getX() < ur.getX() and ll.getY() < point.getY() < ur.getY()
+
 def main():
 
     # row (out of 7) chosen by 3 wires A,B,C Binary 111 = off
@@ -113,17 +120,115 @@ def main():
     bPin = Text(Point(125, 25), "B")
     cPin = Text(Point(225, 25), "C")
     dataPin = Text(Point(325, 25), "Data")
+    clockPin = Text(Point(425, 25), "Clock")
+    clearPin = Text(Point(525, 25), "Clear")
+    aLabel = Text(Point(25, 80), "OFF")
+    bLabel = Text(Point(125, 80), "OFF")
+    cLabel = Text(Point(225, 80), "OFF")
+    dataLabel = Text(Point(325, 80), "OFF")
+    clockLabel = Text(Point(425, 80), "OFF")
+    clearLabel = Text(Point(525, 80), "OFF")
     aPin.draw(pinWin)
     bPin.draw(pinWin)
     cPin.draw(pinWin)
     dataPin.draw(pinWin)
+    clockPin.draw(pinWin)
+    clearPin.draw(pinWin)
     aLabel.setTextColor('red')
     bLabel.setTextColor('red')
     cLabel.setTextColor('red')
     dataLabel.setTextColor('red')
+    clockLabel.setTextColor('red')
+    clearLabel.setTextColor('red')
     aLabel.draw(pinWin)
     bLabel.draw(pinWin)
     cLabel.draw(pinWin)
     dataLabel.draw(pinWin)
+    clockLabel.draw(pinWin)
+    clearLabel.draw(pinWin)
+
+    aRect = Rectangle(Point(10, 60), Point(43, 93))
+    aRect.draw(pinWin)
+
+    bRect = Rectangle(Point(110, 60), Point(143, 93))
+    bRect.draw(pinWin)
+
+    cRect = Rectangle(Point(210, 60), Point(243, 93))
+    cRect.draw(pinWin)
+
+    dataRect = Rectangle(Point(310, 60), Point(343, 93))
+    dataRect.draw(pinWin)
+
+    clockRect = Rectangle(Point(410, 60), Point(443, 93))
+    clockRect.draw(pinWin)
+
+    clearRect = Rectangle(Point(510, 60), Point(543, 93))
+    clearRect.draw(pinWin)
+
+    try:
+        while True:
+            clickPoint = pinWin.getMouse()
+
+            if clickPoint is None:  # so we can substitute checkMouse() for getMouse()
+                aLabel.setText("")
+            elif inside(clickPoint, aRect):
+                if(state[Pin.A]):
+                    setPin(Pin.A, 0);
+                    aLabel.setText("OFF")
+                    aLabel.setTextColor('red')
+                else:
+                    setPin(Pin.A, 1);
+                    aLabel.setText("ON")
+                    aLabel.setTextColor('green')
+            elif inside(clickPoint, bRect):
+                if(state[Pin.B]):
+                    setPin(Pin.B, 0);
+                    bLabel.setText("OFF")
+                    bLabel.setTextColor('red')
+                else:
+                    setPin(Pin.B, 1);
+                    bLabel.setText("ON")
+                    bLabel.setTextColor('green')
+            elif inside(clickPoint, cRect):
+                if(state[Pin.C]):
+                    setPin(Pin.C, 0);
+                    cLabel.setText("OFF")
+                    cLabel.setTextColor('red')
+                else:
+                    setPin(Pin.C, 1);
+                    cLabel.setText("ON")
+                    cLabel.setTextColor('green')
+            elif inside(clickPoint, dataRect):
+                if(state[Pin.DATA]):
+                    setPin(Pin.DATA, 0);
+                    dataLabel.setText("OFF")
+                    dataLabel.setTextColor('red')
+                else:
+                    setPin(Pin.DATA, 1);
+                    dataLabel.setText("ON")
+                    dataLabel.setTextColor('green')
+            elif inside(clickPoint, clockRect):
+                if(state[Pin.CLOCK]):
+                    setPin(Pin.CLOCK, 0);
+                    clockLabel.setText("OFF")
+                    clockLabel.setTextColor('red')
+                else:
+                    setPin(Pin.CLOCK, 1);
+                    clockLabel.setText("ON")
+                    clockLabel.setTextColor('green')
+            elif inside(clickPoint, clearRect):
+                if(state[Pin.CLEAR]):
+                    setPin(Pin.CLEAR, 0);
+                    clearLabel.setText("OFF")
+                    clearLabel.setTextColor('red')
+                else:
+                    setPin(Pin.CLEAR, 1);
+                    clearLabel.setText("ON")
+                    clearLabel.setTextColor('green')
+
+    except KeyboardInterrupt:
+        pass
+
+    print("\nExited.")
 
 main()
