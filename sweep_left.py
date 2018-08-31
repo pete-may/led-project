@@ -1,95 +1,114 @@
-import RPi.GPIO as GPIO
-import time 
+import sys
+import os
+import getopt
+import time
 
-GPIO.setmode(GPIO.BOARD)
-PIN_DATA  = 16	# GREEN
-PIN_CLEAR = 15	# YELLOW
-PIN_CLOCK = 18	# ORANGE
+from led_setup import Setup
+
+emulator = False
 
 PIN_A = 12 # BLUE
 PIN_B = 11 # WHITE
 PIN_C = 13 # PURPLE
 
-GPIO.setup(PIN_A, GPIO.OUT)
-GPIO.setup(PIN_B, GPIO.OUT)
-GPIO.setup(PIN_C, GPIO.OUT)
-
-GPIO.setup(PIN_DATA,  GPIO.OUT)
-GPIO.setup(PIN_CLEAR, GPIO.OUT)
-GPIO.setup(PIN_CLOCK, GPIO.OUT)
-
-def switchRow(row):
-  GPIO.output(PIN_A, 1)
-  GPIO.output(PIN_B, 1)
-  GPIO.output(PIN_C, 1)
-
-  if row == 0:
-    GPIO.output(PIN_A, 0)
-    GPIO.output(PIN_B, 0)
-    GPIO.output(PIN_C, 0)
-  elif row == 1:
-    GPIO.output(PIN_A, 0)
-    GPIO.output(PIN_B, 0)
-    GPIO.output(PIN_C, 1)
-  elif row == 2:
-    GPIO.output(PIN_A, 0)
-    GPIO.output(PIN_B, 1)
-    GPIO.output(PIN_C, 0)
-  elif row == 3:
-    GPIO.output(PIN_A, 0)
-    GPIO.output(PIN_B, 1)
-    GPIO.output(PIN_C, 1)
-  elif row == 4:
-    GPIO.output(PIN_A, 1)
-    GPIO.output(PIN_B, 0)
-    GPIO.output(PIN_C, 0)
-  elif row == 5:
-    GPIO.output(PIN_A, 1)
-    GPIO.output(PIN_B, 0)
-    GPIO.output(PIN_C, 1)
-  elif row == 6:
-    GPIO.output(PIN_A, 1)
-    GPIO.output(PIN_B, 1)
-    GPIO.output(PIN_C, 0)
-  elif row == 7:
-    GPIO.output(PIN_A, 1)
-    GPIO.output(PIN_b, 1)
-    GPIO.output(PIN_c, 1)
-  time.sleep(0.001)
-  GPIO.output(PIN_A, 1)
-  GPIO.output(PIN_B, 1)
-  GPIO.output(PIN_C, 1)
+PIN_DATA  = 16	# GREEN
+PIN_CLOCK = 18	# ORANGE
+PIN_CLEAR = 15	# YELLOW
 
 
-def shiftout(byte):
-  for x in range(8):
-    GPIO.output(PIN_DATA, (byte >> x) & 1)
-    GPIO.output(PIN_CLOCK, 1)
-    GPIO.output(PIN_CLOCK, 0)
+usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
 
-GPIO.output(PIN_CLEAR, 1)
-try:
-  for x in range(0,90):
-    timeout = time.time() + 0.1
-    # print x
-    while True:
-      if time.time() > timeout:
-	break
-      for row in range(7):
-        GPIO.output(PIN_CLEAR, 0)
-        GPIO.output(PIN_CLEAR, 1)
-        
-        GPIO.output(PIN_DATA, 1)
-        GPIO.output(PIN_CLOCK, 1)
-        GPIO.output(PIN_CLOCK, 0)
-        for y in range(x):
-	  GPIO.output(PIN_DATA, 0)
-          GPIO.output(PIN_CLOCK, 1)
-          GPIO.output(PIN_CLOCK, 0)
-        switchRow(row)
-except KeyboardInterrupt:
-  pass
+def parse_args(argv):
+    global emulator
+    try:
+        opts, args = getopt.getopt(argv, "he", ["help", "emulator"])
+    except getopt.GetoptError:
+        print(usage)
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print(usage)
+            sys.exit()
+        if opt == '-e':
+            emulator = True
+            print("emulating")
 
-GPIO.output(PIN_CLEAR, 0) 
-print "done."
+def switchRow(setPin, row):
+    # print("switch to row")
+    # print(row)
+    setPin(PIN_A, 1)
+    setPin(PIN_B, 1)
+    setPin(PIN_C, 1)
 
+    if row == 0:
+        setPin(PIN_A, 0)
+        setPin(PIN_B, 0)
+        setPin(PIN_C, 0)
+    elif row == 1:
+        setPin(PIN_A, 0)
+        setPin(PIN_B, 0)
+        setPin(PIN_C, 1)
+    elif row == 2:
+        setPin(PIN_A, 0)
+        setPin(PIN_B, 1)
+        setPin(PIN_C, 0)
+    elif row == 3:
+        setPin(PIN_A, 0)
+        setPin(PIN_B, 1)
+        setPin(PIN_C, 1)
+    elif row == 4:
+        setPin(PIN_A, 1)
+        setPin(PIN_B, 0)
+        setPin(PIN_C, 0)
+    elif row == 5:
+        setPin(PIN_A, 1)
+        setPin(PIN_B, 0)
+        setPin(PIN_C, 1)
+    elif row == 6:
+        setPin(PIN_A, 1)
+        setPin(PIN_B, 1)
+        setPin(PIN_C, 0)
+    elif row == 7:
+        setPin(PIN_A, 1)
+        setPin(PIN_b, 1)
+        setPin(PIN_c, 1)
+    time.sleep(0.001)
+    setPin(PIN_A, 1)
+    setPin(PIN_B, 1)
+    setPin(PIN_C, 1)
+
+def main(argv):
+    parse_args(argv)
+
+    setup = Setup(emulator)
+    setPin = setup.getFunc()
+
+    setPin(PIN_CLEAR, 1)
+    try:
+        for x in range(0,90):
+            timeout = time.time() + 0.1
+            # print(x)
+            while True:
+                if time.time() > timeout:
+                    break
+                for row in range(7):
+                    setPin(PIN_CLEAR, 0)
+                    setPin(PIN_CLEAR, 1)
+
+                    setPin(PIN_DATA, 1)
+                    setPin(PIN_CLOCK, 1)
+                    setPin(PIN_CLOCK, 0)
+                    for y in range(x):
+                        setPin(PIN_DATA, 0)
+                        setPin(PIN_CLOCK, 1)
+                        setPin(PIN_CLOCK, 0)
+                    switchRow(setPin, row)
+
+    except KeyboardInterrupt:
+        pass
+
+    setPin(PIN_CLEAR, 0)
+    print("done.")
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
