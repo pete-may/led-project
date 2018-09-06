@@ -4,6 +4,14 @@ import getopt
 import time
 import threading
 
+PIN_A = 12 # BLUE
+PIN_B = 11 # WHITE
+PIN_C = 13 # PURPLE
+
+PIN_DATA  = 16  # GREEN
+PIN_CLOCK = 18  # ORANGE
+PIN_CLEAR = 15  # YELLOW
+
 class Setup:
     def __init__(self, emulator=False, ledStart=None):
         self.emulator = emulator
@@ -14,6 +22,7 @@ class Setup:
             self.emul = emul
         else:
             import RPi.GPIO as GPIO
+	    self.GPIO = GPIO
             GPIO.setmode(GPIO.BOARD)
 
             GPIO.setup(PIN_A, GPIO.OUT)
@@ -28,7 +37,7 @@ class Setup:
         if(self.emulator):
             self.emul.setPin(pin, value)
         else:
-            GPIO.OUTPUT(pin, value)
+            self.GPIO.output(pin, value)
 
     def run(self):
         if(self.emulator):

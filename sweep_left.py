@@ -75,26 +75,24 @@ def switchRow(setPin, row):
 
 def start(setPin):
     print("Starting")
-    setPin(PIN_CLEAR, 1)
     try:
+        setPin(PIN_CLEAR, 0)
+        setPin(PIN_CLEAR, 1)
+
+        setPin(PIN_DATA, 1)
+        setPin(PIN_CLOCK, 1)
+        setPin(PIN_CLOCK, 0)
         for x in range(0,90):
-            timeout = time.time() + 0.1
-            # print(x)
-            while True:
+            timeout = time.time() + .1
+            # print(x) 
+	    while True:
                 if time.time() > timeout:
                     break
-                for row in range(7):
-                    setPin(PIN_CLEAR, 0)
-                    setPin(PIN_CLEAR, 1)
-
-                    setPin(PIN_DATA, 1)
-                    setPin(PIN_CLOCK, 1)
-                    setPin(PIN_CLOCK, 0)
-                    for y in range(x):
-                        setPin(PIN_DATA, 0)
-                        setPin(PIN_CLOCK, 1)
-                        setPin(PIN_CLOCK, 0)
+		for row in range(7):
                     switchRow(setPin, row)
+	    setPin(PIN_DATA, 0)
+            setPin(PIN_CLOCK, 1)
+            setPin(PIN_CLOCK, 0)
 
     except KeyboardInterrupt:
         pass
