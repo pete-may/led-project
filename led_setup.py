@@ -22,7 +22,7 @@ class Setup:
             self.emul = emul
         else:
             import RPi.GPIO as GPIO
-	    self.GPIO = GPIO
+            self.GPIO = GPIO
             GPIO.setmode(GPIO.BOARD)
 
             GPIO.setup(PIN_A, GPIO.OUT)

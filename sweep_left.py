@@ -83,14 +83,14 @@ def start(setPin):
         setPin(PIN_CLOCK, 1)
         setPin(PIN_CLOCK, 0)
         for x in range(0,90):
-            timeout = time.time() + .1
+            timeout = time.time() + 1
             # print(x) 
-	    while True:
+            while True:
                 if time.time() > timeout:
                     break
-		for row in range(7):
+                for row in range(7):
                     switchRow(setPin, row)
-	    setPin(PIN_DATA, 0)
+            setPin(PIN_DATA, 0)
             setPin(PIN_CLOCK, 1)
             setPin(PIN_CLOCK, 0)
 
