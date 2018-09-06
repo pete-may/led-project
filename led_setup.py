@@ -2,10 +2,12 @@ import sys
 import os
 import getopt
 import time
+import threading
 
 class Setup:
-    def __init__(self, emulator=False):
+    def __init__(self, emulator=False, ledStart=None):
         self.emulator = emulator
+        self.ledStart = ledStart
 
         if(emulator):
             import sign_emulator as emul
@@ -27,6 +29,14 @@ class Setup:
             self.emul.setPin(pin, value)
         else:
             GPIO.OUTPUT(pin, value)
+
+    def run(self):
+        if(self.emulator):
+            t = threading.Thread(target=self.ledStart, args=(self.setPin, ))
+            t.start()
+            self.emul.setup()
+        else:
+            self.ledStart(self.setPin)
 
     def getFunc(self):
         return self.setPin

@@ -68,21 +68,13 @@ def switchRow(setPin, row):
         setPin(PIN_A, 1)
         setPin(PIN_B, 1)
         setPin(PIN_C, 0)
-    elif row == 7:
-        setPin(PIN_A, 1)
-        setPin(PIN_b, 1)
-        setPin(PIN_c, 1)
     time.sleep(0.001)
     setPin(PIN_A, 1)
     setPin(PIN_B, 1)
     setPin(PIN_C, 1)
 
-def main(argv):
-    parse_args(argv)
-
-    setup = Setup(emulator)
-    setPin = setup.getFunc()
-
+def start(setPin):
+    print("Starting")
     setPin(PIN_CLEAR, 1)
     try:
         for x in range(0,90):
@@ -109,6 +101,12 @@ def main(argv):
 
     setPin(PIN_CLEAR, 0)
     print("done.")
+
+def main(argv):
+    parse_args(argv)
+
+    setup = Setup(emulator, start)
+    setup.run()
 
 if __name__ == '__main__':
     main(sys.argv[1:])

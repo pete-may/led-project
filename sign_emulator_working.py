@@ -4,7 +4,6 @@ import sys
 import os
 import getopt
 import time
-import threading
 
 class Pin(Enum):
     A = 12
@@ -15,16 +14,13 @@ class Pin(Enum):
     CLOCK = 18
     CLEAR = 15
 
-pinState = {}
+state = {}
 for pin in Pin:
-    pinState[pin] = 0
+    state[pin] = 0
 
-# bitMap = [0] * 7
-# for i in range(7):
-#     bitMap[i] = [0] * 90
-
-registerBits = 0 # keeps track of POSITIONS all 1's in the data registers
-oldRegisterBits = 0
+registerBits = []; # keeps track of POSITIONS all 1's in the data registers
+bitMap = 0
+oldBitMap = [0, 0, 0, 0, 0, 0, 0]
 
 
 aLabel = Text(Point(25, 80), "OFF")
@@ -39,7 +35,6 @@ win = GraphWin("Sign Emulator", 900, 70) # Each light bulb is 10 x 10
 # registerWin = GraphWin("Shift Registers", 900, 10)
 
 buttons = False
-locked = True
 
 usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
 
@@ -59,8 +54,8 @@ def parse_args(argv):
             print("buttons enabled")
 
 def setPin(pin, value):
-    global registerBits, oldRegisterBits, pinState, locked
-    locked = True
+    global registerBits, bitMap, oldBitMap
+
     pin = Pin(pin)
     # print("pin = {}".format(pin))
     # print("value = {}".format(value))
@@ -68,46 +63,72 @@ def setPin(pin, value):
     # time.sleep(1)
 
     if pin == Pin.A:
-        pinState[Pin.A] = value;
-        # updatePinLabel(aLabel, value)
+        state[Pin.A] = value;
+        updatePinLabel(aLabel, value)
     elif pin == Pin.B:
-        pinState[Pin.B] = value;
-        # updatePinLabel(bLabel, value)
+        state[Pin.B] = value;
+        updatePinLabel(bLabel, value)
     elif pin == Pin.C:
-        pinState[Pin.C] = value;
-        locked = False
-        # updatePinLabel(cLabel, value)
+        state[Pin.C] = value;
+        updatePinLabel(cLabel, value)
     elif pin == Pin.CLOCK:
         if (value == True):
-            if(pinState[Pin.CLOCK] == 0 and pinState[Pin.CLEAR] == 1): # we push left after a 0, we ignore if a 1
+            if(state[Pin.CLOCK] == 0 and state[Pin.CLEAR] == 1): # we push left after a 0, we ignore if a 1
 
-                registerBits = registerBits << 1
+                # check if the farthest left bit is at the end of the sign, we want to remove it if True
+                # if (len(registerBits) > 0 and registerBits[0] == 0):
+                #     registerBits.pop(0)
 
-                if (pinState[Pin.DATA]):
-                    registerBits = registerBits | 1
-            pinState[Pin.CLOCK] = 1
-            # updatePinLabel(clockLabel, value)
+                # Iterate through registers and move every bit to the left 1
+                # for i in range(len(registerBits)):
+                #     registerBits[i] -= 1
+
+                bitMap = bitMap << 1
+
+                if (state[Pin.DATA]): # if data is set to 1, we append a bit in the register
+                #     registerBits.append(89)
+                    bitMap = bitMap | 1
+            state[Pin.CLOCK] = 1
+            updatePinLabel(clockLabel, value)
         else:
-            pinState[Pin.CLOCK] = 0
-            # updatePinLabel(clockLabel, value)
+            state[Pin.CLOCK] = 0
+            updatePinLabel(clockLabel, value)
     elif pin == Pin.CLEAR: # Ignores 'value', I'm pretty sure that's how it works
         if (value):
-            pinState[Pin.CLEAR] = 1
-            # updatePinLabel(clearLabel, value)
+            state[Pin.CLEAR] = 1
+            updatePinLabel(clearLabel, value)
         else:
-            pinState[Pin.CLEAR] = 0
-            # updatePinLabel(clearLabel, value)
+            state[Pin.CLEAR] = 0
+            updatePinLabel(clearLabel, value)
             # registerBits = []
-            registerBits = 0
+            bitMap = 0
     elif pin == Pin.DATA:
-        pinState[Pin.DATA] = value
-        # updatePinLabel(dataLabel, value)
+        state[Pin.DATA] = value
+        updatePinLabel(dataLabel, value)
         # updatePinLabel(dataLabel, value)
 
+    rowSelected = state[Pin.A] * 4 + state[Pin.B] * 2 + state[Pin.C]
+    if pin == Pin.C and rowSelected != 7:
+        # clearScreen(win)
+        # clearRow(win, rowSelected)
+        # clearScreen(registerWin)
 
-        # else:
-        #     for i in range(7):
-        #         bitMap[i] = [0] * 90
+        # for column in registerBits:
+        #     if (rowSelected != 7):
+        #         lightOn(Point(column * 10, rowSelected * 10), win)
+
+        for x in range(0, 90):
+            # print(bitMap)
+            if(bitMap & (1 << x)):
+                # print("Match")
+                # print(x)
+                if not(oldBitMap[rowSelected] & (1 << x)):
+                    lightOn(Point((89 - x) * 10, rowSelected * 10), win)
+                # print(bitMap)
+            elif(oldBitMap[rowSelected] & (1 << x)):
+                lightOff(Point((89 - x) * 10, rowSelected * 10), win)
+            # lightOn(Point(column * 10, 0), registerWin)x
+        oldBitMap[rowSelected] = bitMap
 
 def updatePinLabel(label, value):
     newText = "ON" if value else "OFF"
@@ -148,50 +169,8 @@ def inside(point, rectangle):
 
     return ll.getX() < point.getX() < ur.getX() and ll.getY() < point.getY() < ur.getY()
 
-def refresh():
-    # print("refresh")
-    global registerBits, locked
+def setup():
     clearScreen(win)
-    # print(bitMap)
-
-    # if locked:
-    #     print("locked")
-    #     return
-
-    bitMap = [0] * 7
-    for i in range(7):
-        bitMap[i] = [0] * 90
-
-    rowSelected = pinState[Pin.A] * 4 + pinState[Pin.B] * 2 + pinState[Pin.C]
-
-
-    for x in range(0, 90):
-        # print(registerBits)
-        if(registerBits & (1 << x)):
-            # print("Match")
-            # print(x)
-            bitMap[rowSelected][89-x] = 1
-
-    threads = []
-    ledArray = []
-    for i in range(7):
-        for j in range(90):
-            if bitMap[i][j]:
-                lightOn(Point(j * 10, i * 10), win)
-                # t = threading.Thread(target=lightOn, args=(Point(j * 10, i * 10), win, len(threads)))
-                # threads.append(t)
-                # t.start()
-            #     ledArray.append("X")
-            # else:
-            #     ledArray.append("_")
-    #     ledArray.append("\n")
-    # os.system('clear')
-    # print("".join(ledArray))
-
-def start():
-    while 1:
-        refresh()
-        time.sleep(.0001)
 
 def main(argv):
     parse_args(argv)
@@ -204,7 +183,7 @@ def main(argv):
     # then turn row on
 
     # make Sign and Register windows black
-    # clearScreen(win)
+    clearScreen(win)
     # clearScreen(registerWin)
 
     #Set up the Pin Monitor
@@ -259,7 +238,7 @@ def main(argv):
                 if clickPoint is None:  # so we can substitute checkMouse() for getMouse()
                     aLabel.setText("")
                 elif inside(clickPoint, aRect):
-                    if(pinState[Pin.A]):
+                    if(state[Pin.A]):
                         setPin(Pin.A, 0);
                         aLabel.setText("OFF")
                         aLabel.setTextColor('red')
@@ -268,7 +247,7 @@ def main(argv):
                         aLabel.setText("ON")
                         aLabel.setTextColor('green')
                 elif inside(clickPoint, bRect):
-                    if(pinState[Pin.B]):
+                    if(state[Pin.B]):
                         setPin(Pin.B, 0);
                         bLabel.setText("OFF")
                         bLabel.setTextColor('red')
@@ -277,7 +256,7 @@ def main(argv):
                         bLabel.setText("ON")
                         bLabel.setTextColor('green')
                 elif inside(clickPoint, cRect):
-                    if(pinState[Pin.C]):
+                    if(state[Pin.C]):
                         setPin(Pin.C, 0);
                         cLabel.setText("OFF")
                         cLabel.setTextColor('red')
@@ -286,7 +265,7 @@ def main(argv):
                         cLabel.setText("ON")
                         cLabel.setTextColor('green')
                 elif inside(clickPoint, dataRect):
-                    if(pinState[Pin.DATA]):
+                    if(state[Pin.DATA]):
                         setPin(Pin.DATA, 0);
                         dataLabel.setText("OFF")
                         dataLabel.setTextColor('red')
@@ -295,7 +274,7 @@ def main(argv):
                         dataLabel.setText("ON")
                         dataLabel.setTextColor('green')
                 elif inside(clickPoint, clockRect):
-                    if(pinState[Pin.CLOCK]):
+                    if(state[Pin.CLOCK]):
                         setPin(Pin.CLOCK, 0);
                         clockLabel.setText("OFF")
                         clockLabel.setTextColor('red')
@@ -304,7 +283,7 @@ def main(argv):
                         clockLabel.setText("ON")
                         clockLabel.setTextColor('green')
                 elif inside(clickPoint, clearRect):
-                    if(pinState[Pin.CLEAR]):
+                    if(state[Pin.CLEAR]):
                         setPin(Pin.CLEAR, 0);
                         clearLabel.setText("OFF")
                         clearLabel.setTextColor('red')
@@ -318,8 +297,7 @@ def main(argv):
 
     print("\nExited.")
 
-def setup():
-    start()
+setup()
 
 if __name__ == '__main__':
     main(sys.argv[1:])
