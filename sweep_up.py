@@ -36,9 +36,9 @@ def parse_args(argv):
 def switchRow(setPin, row):
     # print("switch to row")
     # print(row)
-    setPin(PIN_A, 1)
-    setPin(PIN_B, 1)
-    setPin(PIN_C, 1)
+    #setPin(PIN_A, 1)
+    #setPin(PIN_B, 1)
+    #setPin(PIN_C, 1)
 
     if row == 0:
         setPin(PIN_A, 0)
@@ -68,32 +68,43 @@ def switchRow(setPin, row):
         setPin(PIN_A, 1)
         setPin(PIN_B, 1)
         setPin(PIN_C, 0)
-    time.sleep(0.001)
+    elif row == 7:
+        setPin(PIN_A, 1)
+        setPin(PIN_B, 1)
+        setPin(PIN_C, 1)
+    
+    time.sleep(0.003)    
     setPin(PIN_A, 1)
     setPin(PIN_B, 1)
     setPin(PIN_C, 1)
 
+def shiftBit(setPin, value):
+    setPin(PIN_DATA, value)
+    setPin(PIN_CLOCK, 1)
+    setPin(PIN_CLOCK, 0)
+
+
 def start(setPin):
     print("Starting")
+    setPin(PIN_CLEAR, 0)
     setPin(PIN_CLEAR, 1)
-    try:
+    switchRow(setPin, 7)
+    
+    try: 
         for x in range(0,7):
-            timeout = time.time() + 0.5
+            timeout = time.time() + .5
             while True:
                 if time.time() > timeout:
                     break
                 for row in range(7):
-                    setPin(PIN_CLEAR, 0)
-                    setPin(PIN_CLEAR, 1)
-                    if row == x:
-                        setPin(PIN_DATA, 1)
-                        setPin(PIN_CLOCK, 1)
-                        setPin(PIN_CLOCK, 0)
-                    for y in range(90):
-                        setPin(PIN_DATA, 1)
-                        setPin(PIN_CLOCK, 1)
-                        setPin(PIN_CLOCK, 0)
+                    setPin(PIN_CLEAR,0)
+                    setPin(PIN_CLEAR,1)
+                    if x == row:
+                        for y in range(90):
+                            shiftBit(setPin, 1)
                     switchRow(setPin, row)
+                    #time.sleep(0.001)
+                    
     except KeyboardInterrupt:
         pass
 
