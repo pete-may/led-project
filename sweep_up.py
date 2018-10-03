@@ -3,25 +3,19 @@ import os
 import getopt
 import time
 
-from led_setup import Setup
+from handlers.emul_handler import EmulHandler
+from handlers.rpi_handler import RPIHandler
+from pin_consts import *
 
 emulator = False
-
-PIN_A = 12 # BLUE
-PIN_B = 11 # WHITE
-PIN_C = 13 # PURPLE
-
-PIN_DATA  = 16	# GREEN
-PIN_CLOCK = 18	# ORANGE
-PIN_CLEAR = 15	# YELLOW
-
+graphic = False
 
 usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
 
 def parse_args(argv):
-    global emulator
+    global emulator, graphic
     try:
-        opts, args = getopt.getopt(argv, "he", ["help", "emulator"])
+        opts, args = getopt.getopt(argv, "heg", ["help", "emulator", "graphic"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -32,90 +26,44 @@ def parse_args(argv):
         if opt == '-e':
             emulator = True
             print("emulating")
+        if opt == '-g':
+            graphic = True
 
-def switchRow(setPin, row):
-    # print("switch to row")
-    # print(row)
-    #setPin(PIN_A, 1)
-    #setPin(PIN_B, 1)
-    #setPin(PIN_C, 1)
+def display(self, scroll):
+    for row in range(7):
+        self.clear()
+        if scroll == row:
+            for y in range(90):
+                self.shiftBit(1)
+        self.switchRow(row)
 
-    if row == 0:
-        setPin(PIN_A, 0)
-        setPin(PIN_B, 0)
-        setPin(PIN_C, 0)
-    elif row == 1:
-        setPin(PIN_A, 0)
-        setPin(PIN_B, 0)
-        setPin(PIN_C, 1)
-    elif row == 2:
-        setPin(PIN_A, 0)
-        setPin(PIN_B, 1)
-        setPin(PIN_C, 0)
-    elif row == 3:
-        setPin(PIN_A, 0)
-        setPin(PIN_B, 1)
-        setPin(PIN_C, 1)
-    elif row == 4:
-        setPin(PIN_A, 1)
-        setPin(PIN_B, 0)
-        setPin(PIN_C, 0)
-    elif row == 5:
-        setPin(PIN_A, 1)
-        setPin(PIN_B, 0)
-        setPin(PIN_C, 1)
-    elif row == 6:
-        setPin(PIN_A, 1)
-        setPin(PIN_B, 1)
-        setPin(PIN_C, 0)
-    elif row == 7:
-        setPin(PIN_A, 1)
-        setPin(PIN_B, 1)
-        setPin(PIN_C, 1)
-    
-    time.sleep(0.003)    
-    setPin(PIN_A, 1)
-    setPin(PIN_B, 1)
-    setPin(PIN_C, 1)
-
-def shiftBit(setPin, value):
-    setPin(PIN_DATA, value)
-    setPin(PIN_CLOCK, 1)
-    setPin(PIN_CLOCK, 0)
-
-
-def start(setPin):
+def start(self):
     print("Starting")
-    setPin(PIN_CLEAR, 0)
-    setPin(PIN_CLEAR, 1)
-    switchRow(setPin, 7)
-    
-    try: 
+    try:
+        self.clear()
+        self.switchRow(ROW_OFF)
+
         for x in range(0,7):
-            timeout = time.time() + .5
-            while True:
-                if time.time() > timeout:
-                    break
-                for row in range(7):
-                    setPin(PIN_CLEAR,0)
-                    setPin(PIN_CLEAR,1)
-                    if x == row:
-                        for y in range(90):
-                            shiftBit(setPin, 1)
-                    switchRow(setPin, row)
-                    #time.sleep(0.001)
-                    
+            self.wrappedDisplay(x, 0.1)
+
     except KeyboardInterrupt:
         pass
 
-    setPin(PIN_CLEAR, 0)
+    self.clear()
     print("done.")
 
 def main(argv):
+    global graphic, emulator
     parse_args(argv)
 
-    setup = Setup(emulator, start)
-    setup.run()
+    if(emulator):
+        runner = EmulHandler(graphic=graphic)
+    else:
+        runner = RPIHandler()
+
+    runner.display = display
+    runner.start = start
+    runner.run()
 
 if __name__ == '__main__':
     main(sys.argv[1:])
