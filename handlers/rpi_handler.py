@@ -72,4 +72,4 @@ class RPIHandler(BaseLED):
         while True:
             if time.time() > timeout:
                 break
-            self.display(scroll)
+            self.display(self, scroll)

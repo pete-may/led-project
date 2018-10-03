@@ -2,7 +2,6 @@ import sys
 import os
 import getopt
 import time
-import threading
 
 class BaseLED:
     def __init__(self, emulating=True):
@@ -11,7 +10,7 @@ class BaseLED:
         # self.start = None
 
     def run(self):
-        self.start()
+        self.start(self)
 
         
 
