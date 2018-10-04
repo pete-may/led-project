@@ -30,21 +30,24 @@ def parse_args(argv):
             graphic = True
 
 def display(self, scroll):
+    offset = []
+    for x in range(scroll):
+        offset.append("0")
     for row in range(7):
         if row==0:
-            self.shiftByte("10001001110")
+            self.shiftByte("10001001110" + "".join(offset))
         elif row==1:
-            self.shiftByte("10001000100")
+            self.shiftByte("10001000100" + "".join(offset))
         elif row==2:
-            self.shiftByte("10001000100")
+            self.shiftByte("10001000100" + "".join(offset))
         elif row==3:
-            self.shiftByte("11111000100")
+            self.shiftByte("11111000100" + "".join(offset))
         elif row==4:
-            self.shiftByte("10001000100")
+            self.shiftByte("10001000100" + "".join(offset))
         elif row==5:
-            self.shiftByte("10001000100")
+            self.shiftByte("10001000100" + "".join(offset))
         elif row==6:
-            self.shiftByte("10001001110")
+            self.shiftByte("10001001110" + "".join(offset))
         self.switchRow(row)
 
 
@@ -53,7 +56,8 @@ def start(self):
     try:
         self.clear()
         self.switchRow(ROW_OFF)
-        self.wrappedDisplay(0, 5)
+        for x in range(90):
+            self.wrappedDisplay(x, 0.1)
 
     except KeyboardInterrupt:
         pass
