@@ -34,20 +34,21 @@ def display(self, scroll):
     for x in range(scroll):
         offset.append("0")
     for row in range(7):
+        self.clear()
         if row==0:
-            self.shiftByte("10001001110" + "".join(offset))
+            self.shiftBits("10001001110" + "".join(offset))
         elif row==1:
-            self.shiftByte("10001000100" + "".join(offset))
+            self.shiftBits("10001000100" + "".join(offset))
         elif row==2:
-            self.shiftByte("10001000100" + "".join(offset))
+            self.shiftBits("10001000100" + "".join(offset))
         elif row==3:
-            self.shiftByte("11111000100" + "".join(offset))
+            self.shiftBits("11111000100" + "".join(offset))
         elif row==4:
-            self.shiftByte("10001000100" + "".join(offset))
+            self.shiftBits("10001000100" + "".join(offset))
         elif row==5:
-            self.shiftByte("10001000100" + "".join(offset))
+            self.shiftBits("10001000100" + "".join(offset))
         elif row==6:
-            self.shiftByte("10001001110" + "".join(offset))
+            self.shiftBits("10001001110" + "".join(offset))
         self.switchRow(row)
 
 
@@ -56,8 +57,9 @@ def start(self):
     try:
         self.clear()
         self.switchRow(ROW_OFF)
-        for x in range(90):
-            self.wrappedDisplay(x, 0.1)
+        # for x in range(90):
+        self.wrappedDisplay(0, 0.1)
+        time.sleep(5)
 
     except KeyboardInterrupt:
         pass
