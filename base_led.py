@@ -2,7 +2,6 @@ import sys
 import os
 import getopt
 import time
-import threading
 
 class BaseLED:
     def __init__(self, emulating=True):
@@ -16,7 +15,7 @@ class BaseLED:
             self.shiftBit(int(str[x]))
     
     def run(self):
-        self.start()
+        self.start(self)
 
 
         

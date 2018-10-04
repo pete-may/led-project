@@ -44,7 +44,7 @@ def start(self):
         self.switchRow(ROW_OFF)
 
         for x in range(0,7):
-            self.wrappedDisplay(x, 0.1)
+            self.wrappedDisplay(x, 0.5)
 
     except KeyboardInterrupt:
         pass

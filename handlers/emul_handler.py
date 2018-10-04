@@ -1,7 +1,6 @@
 from base_led import BaseLED
 from pin_consts import *
 
-from graphics import *
 import os
 import time
 
@@ -18,6 +17,7 @@ class EmulHandler(BaseLED):
 
         # python graphics
         if(self.graphic):
+            from graphics import GraphWin, Rectangle, Point 
             self.win = GraphWin("Sign Emulator", 900, 70) # Each light bulb is 10 x 10
 
     def switchRow(self, row):
