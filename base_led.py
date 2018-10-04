@@ -9,9 +9,15 @@ class BaseLED:
         self.emulating = emulating
         # self.display = None
         # self.start = None
+    
+    def shiftByte(self, str):
 
+        for x in range(len(str)):
+            self.shiftBit(int(str[x]))
+    
     def run(self):
         self.start()
+
 
         
 
