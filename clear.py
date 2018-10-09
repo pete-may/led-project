@@ -1,7 +1,0 @@
-import RPi.GPIO as GPIO
-PIN_CLEAR = 15  # YELLOW
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(PIN_CLEAR, GPIO.OUT)
-GPIO.output(PIN_CLEAR, 1)
-GPIO.output(PIN_CLEAR, 0)
-

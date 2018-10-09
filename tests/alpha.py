@@ -1,16 +1,12 @@
-with open('lib', 'r') as lib:
+with open('lib2', 'r') as lib:
     line = lib.readline()
     lookup = {}
     print('{', end='')
     while line:
-        letter = line.split('=')[0]
-        seq = line.split('=')[1]
+        letter = line.rsplit('=',1)[0]
+        seq = line.rsplit('=',1)[1]
         print("\"{}\": [".format(letter), end='')
         # print(seq, end='')
-
-        if(letter == 's'):
-            line = lib.readline()
-            continue
 
         for x in range(7):
             print('"', end='')

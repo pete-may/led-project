@@ -2,7 +2,7 @@ import sys
 import os
 import getopt
 import time
-from alpha_consts import *
+from ascii_consts import *
 
 class BaseLED:
     def __init__(self, emulating=True):
@@ -17,10 +17,9 @@ class BaseLED:
             for row in range(7):   
                 self.clear()
                 for x in range(len(str)):
-                    if str[x] == ' ':
-                        self.shiftBits("00000")
-                    else:
-                        self.shiftBits(alpha_consts[str[x]][row])
+                    self.shiftBits(ascii_consts[str[x]][row])
+                    self.shiftBit(0)
+                for x in range(scroll):
                     self.shiftBit(0)
                 self.switchRow(row)
 
@@ -29,8 +28,9 @@ class BaseLED:
             try:
                 self.clear()
                 self.switchRow(7)
+                #for x in range(90):
                 self.wrappedDisplay(0, 0.1)
-                time.sleep(2)
+                time.sleep(5)
 
             except KeyboardInterrupt:
                 pass
