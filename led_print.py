@@ -10,13 +10,15 @@ from alpha_consts import *
 
 emulator = False
 graphic = False
+scroll = False
+message = None
 
-usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
+# usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
 
 def parse_args(argv):
-    global emulator, graphic
+    global emulator, graphic, scroll, message
     try:
-        opts, args = getopt.getopt(argv, "heg", ["help", "emulator", "graphic"])
+        opts, args = getopt.getopt(argv, "hegsm:", ["help", "emulator", "graphic" "scroll", "message="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -29,9 +31,13 @@ def parse_args(argv):
             print("emulating")
         if opt == '-g':
             graphic = True
+        if opt == '-s':
+            scroll = True
+        if opt == '-m':
+            message = arg
 
 def main(argv):
-    global graphic, emulator
+    # global graphic, emulator, scroll
     parse_args(argv)
 
     if(emulator):
@@ -42,8 +48,10 @@ def main(argv):
     # runner.display = display
     # runner.start = start
     # runner.run()
-    print(argv[1])
-    runner.print(argv[1])
+    # print(scroll)
+    # print(argv[1])
+    # print(message)
+    runner.print(message, scroll)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

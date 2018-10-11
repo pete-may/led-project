@@ -24,7 +24,7 @@ class EmulHandler(BaseLED):
         self.selectedRow = row
         for x in range(0, 90):
             if(self.registerBits & (1 << x)):
-                self.bitMap[self.selectedRow][89-x] = 1
+                self.bitMap[6-self.selectedRow][89-x] = 1
         
         self.registerBits = 0
 
@@ -46,7 +46,7 @@ class EmulHandler(BaseLED):
 
         for i in range(7):
             self.bitMap[i] = [0] * 90
-        time.sleep(duration)
+        # time.sleep(duration)
 
     def consoleDisplay(self, scroll, duration):
         self.cls()

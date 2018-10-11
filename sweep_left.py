@@ -9,13 +9,14 @@ from pin_consts import *
 
 emulator = False
 graphic = False
+scroll = False
 
 usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
 
 def parse_args(argv):
-    global emulator, graphic
+    global emulator, graphic, scroll
     try:
-        opts, args = getopt.getopt(argv, "heg", ["help", "emulator", "graphic"])
+        opts, args = getopt.getopt(argv, "hegs", ["help", "emulator", "graphic", "scroll"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -28,6 +29,8 @@ def parse_args(argv):
             print("emulating")
         if opt == '-g':
             graphic = True
+        if opt == '-s':
+            scroll = True
 
 def display(self, scroll):
     for row in range(7):
@@ -53,7 +56,7 @@ def start(self):
     print("done.")
 
 def main(argv):
-    global graphic, emulator
+    # global graphic, emulator, scroll
     parse_args(argv)
 
     if(emulator):
