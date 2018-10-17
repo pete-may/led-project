@@ -68,11 +68,11 @@ class RPIHandler(BaseHandler):
         self.GPIO.output(PIN_CLEAR, 1)
 
     def wrappedDisplay(self, x):
-        timeout = time.time() + 0.05
+        timeout = time.time() + 0.015
         while True:
             if x >= 0 and time.time() > timeout:
                 break
-            self.display(self)
+            self.display(x)
     
     def display(self):
         pass

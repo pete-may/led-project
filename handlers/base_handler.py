@@ -57,7 +57,6 @@ class BaseHandler:
                 for x in range(90 + len(self.buffer[0])):
                     self.wrappedDisplay(x)
             else:
-                print("here")
                 self.wrappedDisplay(-1)
 
         except KeyboardInterrupt:
