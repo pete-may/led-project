@@ -1,72 +1,17 @@
 import sys
-import os
-import getopt
-import time
+from parser import parse_args
+from led import LED
 
-from handlers.emul_handler import EmulHandler
-from handlers.rpi_handler import RPIHandler
-from pin_consts import *
-
-emulator = False
-graphic = False
-scroll = False
-
-usage = 'usage: python ' + os.path.basename(__file__) + ' <file_with_data>'
-
-def parse_args(argv):
-    global emulator, graphic, scroll
-    try:
-        opts, args = getopt.getopt(argv, "hegs", ["help", "emulator", "graphic", "scroll"])
-    except getopt.GetoptError:
-        print(usage)
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print(usage)
-            sys.exit()
-        if opt == '-e':
-            emulator = True
-            print("emulating")
-        if opt == '-g':
-            graphic = True
-        if opt == '-s':
-            scroll = True
-
-def display(self, scroll):
+def display(self):
     for row in range(7):
         self.clear()
         self.shiftBit(1)
-        for y in range(0,scroll):
-           self.shiftBit(0)
         self.switchRow(row)
 
-def start(self):
-    print("Starting")
-    try:
-        self.clear()
-        self.switchRow(ROW_OFF)
-
-        for x in range(0,90):
-            self.wrappedDisplay(x, 0.1)
-
-    except KeyboardInterrupt:
-        pass
-
-    self.clear()
-    print("done.")
-
 def main(argv):
-    # global graphic, emulator, scroll
-    parse_args(argv)
-
-    if(emulator):
-        runner = EmulHandler(graphic=graphic)
-    else:
-        runner = RPIHandler()
-
-    runner.display = display
-    runner.start = start
-    runner.run()
+    options = parse_args(argv)
+    led = LED(options)
+    led.run(display)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

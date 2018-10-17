@@ -1,11 +1,11 @@
-from base_led import BaseLED
+from handlers.base_handler import BaseHandler
 from pin_consts import *
 
 import time
 
-class RPIHandler(BaseLED):
-    def __init__(self, emulating=False):
-        self.emulating = emulating
+class RPIHandler(BaseHandler):
+    def __init__(self, options):
+        self.options = options
 
         import RPi.GPIO as GPIO
         self.GPIO = GPIO
@@ -67,9 +67,13 @@ class RPIHandler(BaseLED):
         self.GPIO.output(PIN_CLEAR, 0)
         self.GPIO.output(PIN_CLEAR, 1)
 
-    def wrappedDisplay(self, scroll, duration):
-        timeout = time.time() + duration
+    def wrappedDisplay(self, x):
+        timeout = time.time() + 0.05
         while True:
-            if time.time() > timeout:
+            if x >= 0 and time.time() > timeout:
                 break
-            self.display(self, scroll)
+            self.display(self)
+    
+    def display(self):
+        pass
+

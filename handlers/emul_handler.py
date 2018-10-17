@@ -1,12 +1,14 @@
-from base_led import BaseLED
+from handlers.base_handler import BaseHandler
 
 import os
 import time
+import signal
 
-class EmulHandler(BaseLED):
-    def __init__(self, emulating=True, graphic=False):
-        self.emulating = emulating
-        self.graphic = graphic
+class EmulHandler(BaseHandler):
+    def __init__(self, options):
+        self.options = options
+
+        self.graphic = self.options.get('graphic')
 
         self.selectedRow = 7
         self.registerBits = 0
@@ -36,9 +38,9 @@ class EmulHandler(BaseLED):
     def clear(self):
         self.registerBits = 0
 
-    def graphicDisplay(self, scroll, duration):
+    def graphicDisplay(self, x):
         self.clearScreen()
-        self.display(self, scroll)
+        self.display(x)
         for i in range(7):
             for j in range(90):
                 if self.bitMap[i][j]:
@@ -46,11 +48,15 @@ class EmulHandler(BaseLED):
 
         for i in range(7):
             self.bitMap[i] = [0] * 90
-        # time.sleep(duration)
+        
+        if x < 0:
+            signal.pause()
+        else:
+            time.sleep(0.05)
 
-    def consoleDisplay(self, scroll, duration):
+    def consoleDisplay(self, x):
         self.cls()
-        self.display(self, scroll)
+        self.display(x)
         ledArray = []
         for i in range(7):
             for j in range(90):
@@ -60,16 +66,20 @@ class EmulHandler(BaseLED):
                     ledArray.append("_")
             ledArray.append("\n")
         print("".join(ledArray), end='')
-        time.sleep(duration)
         
         for i in range(7):
             self.bitMap[i] = [0] * 90
 
-    def wrappedDisplay(self, scroll, duration):
-        if(self.graphic):
-            self.graphicDisplay(scroll, duration)
+        if x < 0:
+            signal.pause()
         else:
-            self.consoleDisplay(scroll, duration)
+            time.sleep(0.05)
+
+    def wrappedDisplay(self, x):
+        if(self.graphic):
+            self.graphicDisplay(x)
+        else:
+            self.consoleDisplay(x)
 
     # python graphics
 
@@ -93,12 +103,3 @@ class EmulHandler(BaseLED):
         for i in range(7):
             print("\033[F", end='')
 
-    def display(self):
-        pass
-
-    def start(self):
-        pass
-
-    def run(self):
-        os.system('clear')
-        self.start(self)
