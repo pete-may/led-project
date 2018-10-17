@@ -4,15 +4,22 @@ import getopt
 import time
 from ascii_consts import *
 
+# BaseHandler contains functions used by both EmulHandler and RPIHandler
+
 class BaseHandler:
     def __init__(self, options):
         self.options = options
         self.buffer = []
         self.len = 0
         
+    # shiftBits takes a string of 0s and 1s and shifts accordingly
+    # currently unused
+
     def shiftBits(self, str):
         for x in range(len(str)):
             self.shiftBit(int(str[x]))
+
+    # staticDisplay
 
     def staticDisplay(self, scroll):
         for row in range(7):   

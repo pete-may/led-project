@@ -1,6 +1,8 @@
 from handlers.rpi_handler import RPIHandler
 from handlers.emul_handler import EmulHandler
 
+# LED selects either emulator mode or RPI mode based on options
+
 class LED:
     def __init__(self, options):
         if options.get('emulator'):

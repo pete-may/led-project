@@ -11,6 +11,8 @@ defaultOptions = {
     "message": ""
 }
 
+# parse args from console
+
 def parse_args(argv):
     options = defaultOptions
     try:
