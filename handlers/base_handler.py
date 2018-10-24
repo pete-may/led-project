@@ -19,7 +19,8 @@ class BaseHandler:
         for x in range(len(str)):
             self.shiftBit(int(str[x]))
 
-    # staticDisplay
+    # staticDisplay and scrollDisplay are wrapped by wrappedDisplay
+    # they display a pattern either inanimate or scrolling
 
     def staticDisplay(self, scroll):
         for row in range(7):   
@@ -39,6 +40,12 @@ class BaseHandler:
                 self.shiftBit(int(self.buffer[row][x]))
             self.switchRow(row)
     
+    # print is called either by led_print or by an external source
+    # it deconstructs a string into its ascii representation and then 
+    # translates the information into bits recognized by the sign
+    # also inserts spaces in between characters and selects either static or scroll
+    # display based on options
+
     def print(self, str):
         self.buffer = []
         self.len = len(str)
@@ -53,6 +60,9 @@ class BaseHandler:
         else:
             self.display=self.staticDisplay
         self.run()
+    
+    # run starts the session and either scrolls a message or 
+    # displays one staic indefinitely
     
     def run(self):
         os.system('clear')

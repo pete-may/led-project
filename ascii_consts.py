@@ -1,3 +1,5 @@
+# this dictionary translates ascii characters into 5x7 bit representation
+
 ascii_consts = {
     " ": ["00000", "00000", "00000", "00000", "00000", "00000", "00000"],
     "!": ["00100", "00100", "00100", "00100", "00100", "00000", "00100"],
