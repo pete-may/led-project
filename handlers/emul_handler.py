@@ -29,7 +29,7 @@ class EmulHandler(BaseHandler):
         # python graphics setup
 
         if(self.graphic):
-            from graphics import GraphWin, Rectangle, Point 
+            from lib.graphics import GraphWin, Rectangle, Point 
             global Rectangle, Point
             self.win = GraphWin("Sign Emulator", 900, 70) # Each light bulb is 10 x 10
 
