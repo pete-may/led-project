@@ -81,7 +81,7 @@ class BaseHandler:
         except KeyboardInterrupt:
             pass
 
-        self.flush()
+        self.clear()
 
 
         

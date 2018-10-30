@@ -8,7 +8,7 @@ from time import localtime, strftime
 app = Bottle()
 
 defaultOptions = {
-    "emulator": True,
+    "emulator": False,
     "graphic": False,
     "scroll": False,
     "message": "",
