@@ -10,7 +10,6 @@ class BaseHandler:
     def __init__(self, options):
         self.options = options
         self.buffer = []
-        self.len = 0
         
     # shiftBits takes a string of 0s and 1s and shifts accordingly
     # currently unused
@@ -23,10 +22,11 @@ class BaseHandler:
     # they display a pattern either inanimate or scrolling
 
     def staticDisplay(self, scroll):
+        str = self.options.get('message')
         for row in range(7):   
             self.clear()
-            for x in range(self.len):
-                self.shiftBits(ascii_consts[self.options.get('message')[x]][6-row])
+            for x in range(len(str)):
+                self.shiftBits(ascii_consts[str[x]][6-row])
                 self.shiftBit(0)
             self.switchRow(row)
     
@@ -40,18 +40,25 @@ class BaseHandler:
                 self.shiftBit(int(self.buffer[row][x]))
             self.switchRow(row)
     
-    # print is called either by led_print or by an external source
+
+
+    def flush(self):
+        self.options['message'] = ""
+        self.clear()
+    
+    # run is called either by led_print or by an external source
     # it deconstructs a string into its ascii representation and then 
     # translates the information into bits recognized by the sign
     # also inserts spaces in between characters and selects either static or scroll
     # display based on options
-
-    def print(self, str):
+    
+    def run(self):
         self.buffer = []
-        self.len = len(str)
+        str = self.options.get('message')
+        print(str)
         for x in range(7):
             row = ""
-            for y in range(self.len):
+            for y in range(len(str)):
                 row += ascii_consts[str[y]][6-x]
                 row += '0'
             self.buffer.append(row)
@@ -59,19 +66,14 @@ class BaseHandler:
             self.display=self.scrollDisplay
         else:
             self.display=self.staticDisplay
-        self.run()
-    
-    # run starts the session and either scrolls a message or 
-    # displays one staic indefinitely
-    
-    def run(self):
-        os.system('clear')
-        print("Starting")
+
         try:
             self.clear()
             self.switchRow(7)
             if self.options.get('scroll'):
                 for x in range(90 + len(self.buffer[0])):
+                    if self.options.get('reset'):
+                        break
                     self.wrappedDisplay(x)
             else:
                 self.wrappedDisplay(-1)
@@ -79,8 +81,7 @@ class BaseHandler:
         except KeyboardInterrupt:
             pass
 
-        self.clear()
-        print("done.")
+        self.flush()
 
 
         

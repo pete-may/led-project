@@ -1,5 +1,6 @@
 from handlers.rpi_handler import RPIHandler
 from handlers.emul_handler import EmulHandler
+from time import sleep
 
 # LED selects either emulator mode or RPI mode based on options
 
@@ -10,9 +11,11 @@ class LED:
         else:
             self.runner = RPIHandler(options)
     
-    def print(self, msg):
-        self.runner.print(msg)
+    def clear(self):
+        self.runner.flush()
 
-    def run(self, display):
-        self.runner.display = display
-        self.runner.run()
+    def run(self):
+        while(True):
+            self.runner.options['reset'] = False
+            self.runner.run()
+            sleep(0.5)

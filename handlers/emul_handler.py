@@ -32,6 +32,9 @@ class EmulHandler(BaseHandler):
             from lib.graphics import GraphWin, Rectangle, Point 
             global Rectangle, Point
             self.win = GraphWin("Sign Emulator", 900, 70) # Each light bulb is 10 x 10
+            self.flush = self.clearScreen
+        else:
+            self.flush = self.cls
 
     # switchRow selects new row, when called this functions updates bitMap with 
     # values from registerBits and then clears registerBits for new row
@@ -90,12 +93,14 @@ class EmulHandler(BaseHandler):
                     ledArray.append("_")
             ledArray.append("\n")
         print("".join(ledArray), end='')
-        
+
         for i in range(7):
             self.bitMap[i] = [0] * 90
 
         if x < 0:
-            signal.pause()
+            while(True):
+                if self.options.get('reset'):
+                    break
         else:
             time.sleep(0.05)
 

@@ -1,32 +1,55 @@
 import sys
 from parser import parse_args
 from led import LED
+from threading import Thread
+from bottle import Bottle, route, run, get, post
+from time import localtime, strftime
 
-from flask import Flask
-app = Flask(__name__)
+app = Bottle()
 
 defaultOptions = {
     "emulator": True,
     "graphic": False,
-    "scroll": True,
-    "message": ""
+    "scroll": False,
+    "message": "",
+    "new_message": "new_message",
+    "reset": False
 }
 
-@app.route('/status')
+led = LED(defaultOptions)
+t = Thread(target=led.run, args=())
+t.start()
+
+@app.get('/status')
 def status():
-    return "good to go.\n"
+    return "you're good to go.\n"
 
-@app.route('/<message>')
+@app.get('/scroll')
+def scroll():
+    if led.runner.options.get('scroll'):
+        led.runner.options['scroll'] = False
+    else:
+        led.runner.options['scroll'] = True
+    led.runner.options['reset'] = True
+    return "scrolling.\n"
+
+@app.get('/time')
+def time():
+    message = strftime("%-I:%M%p %b %d", localtime())
+    led.runner.options['message'] = message
+    led.runner.options['reset'] = True
+    return "displaying time.\n"
+
+@app.get('/msg/<message>')
 def receive(message):
-    return print(message)
+    led.runner.options['message'] = message
+    led.runner.options['reset'] = True
+    return "displaying message.\n"
 
-def print(message):
-    try:
-        options = defaultOptions
-        options['message'] = message
-        led = LED(options)
-        led.print(options.get('message'))
-    except KeyboardInterrupt:
-        pass
+@app.route('/clear')
+def clear():
+    led.runner.options['message'] = ""
+    led.runner.options['reset'] = True
+    return "cleared\n"
 
-    return "done."
+app.run(host='0.0.0.0', port=5000, debug=False)
