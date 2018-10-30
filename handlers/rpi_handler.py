@@ -86,7 +86,9 @@ class RPIHandler(BaseHandler):
     def wrappedDisplay(self, x):
         timeout = time.time() + 0.015
         while True:
-            if x >= 0 and time.time() > timeout and not self.options.get('reset'):
+            if x >= 0 and time.time() > timeout:
+                break
+            if self.options.get('reset'):
                 break
             self.display(x)
 
