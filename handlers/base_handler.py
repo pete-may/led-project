@@ -55,7 +55,7 @@ class BaseHandler:
     def run(self):
         self.buffer = []
         str = self.options.get('message')
-        print(str)
+        # print(str)
         for x in range(7):
             row = ""
             for y in range(len(str)):

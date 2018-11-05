@@ -88,7 +88,7 @@ class RPIHandler(BaseHandler):
         while True:
             if x >= 0 and time.time() > timeout:
                 break
-            if self.options.get('reset'):
+            if self.options.get('reset') or self.options.get('time'):
                 break
             self.display(x)
 

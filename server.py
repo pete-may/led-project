@@ -3,17 +3,17 @@ from parser import parse_args
 from led import LED
 from threading import Thread
 from bottle import Bottle, route, run, get, post
-from time import localtime, strftime
 
 app = Bottle()
 
 defaultOptions = {
-    "emulator": False,
+    "emulator": True,
     "graphic": False,
     "scroll": False,
     "message": "",
     "new_message": "new_message",
-    "reset": False
+    "reset": False,
+    "time": False
 }
 
 led = LED(defaultOptions)
@@ -35,20 +35,21 @@ def scroll():
 
 @app.get('/time')
 def time():
-    message = strftime("%-I:%M%p %b %d", localtime())
-    led.runner.options['message'] = message
+    led.runner.options['time'] = True 
     led.runner.options['reset'] = True
     return "displaying time.\n"
 
 @app.get('/msg/<message>')
 def receive(message):
     led.runner.options['message'] = message
+    led.runner.options['time'] = False
     led.runner.options['reset'] = True
     return "displaying message.\n"
 
 @app.route('/clear')
 def clear():
     led.runner.options['message'] = ""
+    led.runner.time['time'] = False
     led.runner.options['reset'] = True
     return "cleared\n"
 

@@ -99,7 +99,7 @@ class EmulHandler(BaseHandler):
 
         if x < 0:
             while(True):
-                if self.options.get('reset'):
+                if self.options.get('reset') or self.options.get('time'):
                     break
         else:
             time.sleep(0.05)
