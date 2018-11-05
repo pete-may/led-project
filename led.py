@@ -21,4 +21,3 @@ class LED:
                 self.runner.options['message'] = message
             self.runner.options['reset'] = False
             self.runner.run()
-            sleep(0.5)
